@@ -1,0 +1,1 @@
+"""EAR handlers module."""

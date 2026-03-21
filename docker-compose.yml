@@ -1,0 +1,59 @@
+# OS-APOW Workflow Orchestration Queue
+# Docker Compose configuration for local development
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: woq-api
+    ports:
+      - "8000:8000"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_ORG=${GITHUB_ORG}
+      - GITHUB_REPO=${GITHUB_REPO}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - SENTINEL_BOT_LOGIN=${SENTINEL_BOT_LOGIN:-}
+      - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
+      - KIMI_API_KEY=${KIMI_API_KEY:-}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ./src:/app/src:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: woq-sentinel
+    command: ["uvicorn", "workflow_orchestration_queue.brain.sentinel:run", "--host", "0.0.0.0"]
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_ORG=${GITHUB_ORG}
+      - GITHUB_REPO=${GITHUB_REPO}
+      - SENTINEL_BOT_LOGIN=${SENTINEL_BOT_LOGIN:-}
+      - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
+      - KIMI_API_KEY=${KIMI_API_KEY:-}
+      - POLL_INTERVAL=${POLL_INTERVAL:-60}
+      - MAX_BACKOFF=${MAX_BACKOFF:-960}
+      - HEARTBEAT_INTERVAL=${HEARTBEAT_INTERVAL:-300}
+    volumes:
+      - ./src:/app/src:ro
+      - ./scripts:/app/scripts:ro
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    profiles:
+      - sentinel
+
+networks:
+  default:
+    name: woq-network
