@@ -16,7 +16,7 @@ from workflow_orchestration_queue.ear.handlers import github as github_handler
 router = APIRouter()
 
 
-def verify_github_signature(request: Request, x_hub_signature_256: str = Header(None)) -> None:
+def verify_github_signature(_request: Request, x_hub_signature_256: str = Header(None)) -> None:
     """Verify GitHub webhook signature using HMAC SHA256."""
     if not x_hub_signature_256:
         raise HTTPException(status_code=401, detail="X-Hub-Signature-256 missing")

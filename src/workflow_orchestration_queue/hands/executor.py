@@ -66,8 +66,8 @@ class Executor:
                 stdout=stdout.decode().strip() if stdout else "",
                 stderr=stderr.decode().strip() if stderr else "",
             )
-        except Exception as e:
-            logger.error(f"Command execution error: {e!s}")
+        except Exception:
+            logger.exception("Command execution error")
             raise
 
     async def initialize_environment(self) -> bool:

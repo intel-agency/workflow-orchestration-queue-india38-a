@@ -22,6 +22,8 @@ from workflow_orchestration_queue.state.models.work_item import (
 
 logger = logging.getLogger("OS-APOW")
 
+HTTP_OK = 200
+
 
 class ITaskQueue(ABC):
     """Interface for the Work Queue (e.g., GitHub Issues, Linear, Jira, etc.)."""
@@ -129,7 +131,7 @@ class GitHubQueue(ITaskQueue):
             # Propagate rate-limit errors so the sentinel's backoff logic fires
             response.raise_for_status()
 
-        if response.status_code != 200:
+        if response.status_code != HTTP_OK:
             logger.error(f"GitHub API error: {response.status_code} {response.text[:200]}")
             return []
 
@@ -209,7 +211,7 @@ class GitHubQueue(ITaskQueue):
 
             # Step 2: Re-fetch and verify assignee
             verify_resp = await self.client.get(url_issue)
-            if verify_resp.status_code == 200:
+            if verify_resp.status_code == HTTP_OK:
                 assignees = [a["login"] for a in verify_resp.json().get("assignees", [])]
                 if bot_login not in assignees:
                     logger.warning(

@@ -5,13 +5,13 @@ Canonical data model shared by all OS-APOW components.
 This model represents the unified work item used across the system.
 """
 
+import enum
 import re
-from enum import Enum
 
 from pydantic import BaseModel
 
 
-class TaskType(str, Enum):
+class TaskType(enum.StrEnum):
     """The kind of work the agent should perform."""
 
     PLAN = "PLAN"
@@ -19,7 +19,7 @@ class TaskType(str, Enum):
     BUGFIX = "BUGFIX"
 
 
-class WorkItemStatus(str, Enum):
+class WorkItemStatus(enum.StrEnum):
     """Maps directly to GitHub Issue labels used as state indicators."""
 
     QUEUED = "agent:queued"

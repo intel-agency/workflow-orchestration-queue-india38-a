@@ -10,6 +10,7 @@ This script acts as the 'Brain' of the OS-APOW system. It:
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 import random
@@ -47,9 +48,9 @@ logger = logging.getLogger("OS-APOW-Sentinel")
 _shutdown_requested = False
 
 
-def _handle_signal(signum: int, frame: Any) -> None:
+def _handle_signal(signum: int, _frame: Any) -> None:
     """Set shutdown flag on SIGTERM/SIGINT so the current task can finish."""
-    global _shutdown_requested
+    global _shutdown_requested  # noqa: PLW0603
     sig_name = signal.Signals(signum).name
     logger.info(f"Received {sig_name} — will shut down after current task finishes")
     _shutdown_requested = True
@@ -101,8 +102,8 @@ async def run_shell_command(
             stdout=stdout.decode().strip() if stdout else "",
             stderr=stderr.decode().strip() if stderr else "",
         )
-    except Exception as e:
-        logger.error(f"Critical shell execution error: {e!s}")
+    except Exception:
+        logger.exception("Critical shell execution error")
         raise
 
 
@@ -191,10 +192,8 @@ class Sentinel:
             )
         finally:
             heartbeat_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await heartbeat_task
-            except asyncio.CancelledError:
-                pass
 
             # Environment reset between tasks
             logger.info("Resetting environment (stop)")
@@ -211,7 +210,7 @@ class Sentinel:
                     logger.info(f"Found {len(tasks)} queued task(s).")
                     for task in tasks:
                         if _shutdown_requested:
-                            break
+                            break  # type: ignore[unreachable]
                         if await self.queue.claim_task(task, SENTINEL_ID, SENTINEL_BOT_LOGIN):
                             await self.process_task(task)
                             break
@@ -230,9 +229,9 @@ class Sentinel:
                     await asyncio.sleep(wait)
                     continue
                 else:
-                    logger.error(f"GitHub API error: {exc}")
-            except Exception as e:
-                logger.error(f"Polling cycle error: {e!s}")
+                    logger.exception("GitHub API error")
+            except Exception:
+                logger.exception("Polling cycle error")
 
             await asyncio.sleep(self._current_backoff)
 

@@ -150,3 +150,7 @@ Environment variables are documented in `.env.example`. Key settings:
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## AI Repository Summary
+
+For a concise overview designed for AI assistants and coding agents, see [.ai-repository-summary.md](.ai-repository-summary.md).

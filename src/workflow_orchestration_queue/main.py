@@ -8,6 +8,7 @@ entry point for the EAR (Event Notifier) component.
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,7 +17,7 @@ from workflow_orchestration_queue.config.settings import settings
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan manager for startup/shutdown events."""
     # Startup
     settings.validate_required()
@@ -47,8 +48,6 @@ app.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 def run_dev() -> None:
     """Run the development server."""
-    import uvicorn
-
     uvicorn.run(
         "workflow_orchestration_queue.main:app",
         host="0.0.0.0",

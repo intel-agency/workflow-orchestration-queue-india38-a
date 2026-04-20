@@ -23,7 +23,7 @@ class Notifier:
         """
         self.queue = queue
 
-    async def notify_start(self, item: WorkItem, sentinel_id: str) -> None:
+    async def notify_start(self, item: WorkItem, _sentinel_id: str) -> None:
         """Notify that work has started on an item.
 
         Args:
@@ -35,7 +35,7 @@ class Notifier:
     async def notify_progress(
         self,
         item: WorkItem,
-        sentinel_id: str,
+        _sentinel_id: str,
         message: str,
     ) -> None:
         """Notify about progress on an item.
@@ -51,7 +51,7 @@ class Notifier:
     async def notify_complete(
         self,
         item: WorkItem,
-        sentinel_id: str,
+        _sentinel_id: str,
         success: bool,
         message: str | None = None,
     ) -> None:

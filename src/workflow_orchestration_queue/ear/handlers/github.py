@@ -65,13 +65,13 @@ async def _handle_issues_event(payload: dict[str, Any]) -> dict[str, str]:
     return {"status": "ignored", "reason": f"No actionable mapping for action: {action}"}
 
 
-async def _handle_push_event(payload: dict[str, Any]) -> dict[str, str]:
+async def _handle_push_event(_payload: dict[str, Any]) -> dict[str, str]:
     """Handle GitHub push webhook events."""
     # Placeholder for push event handling
     return {"status": "ignored", "reason": "Push events not yet implemented"}
 
 
-async def _handle_pull_request_event(payload: dict[str, Any]) -> dict[str, str]:
+async def _handle_pull_request_event(_payload: dict[str, Any]) -> dict[str, str]:
     """Handle GitHub pull request webhook events."""
     # Placeholder for PR event handling
     return {"status": "ignored", "reason": "Pull request events not yet implemented"}
